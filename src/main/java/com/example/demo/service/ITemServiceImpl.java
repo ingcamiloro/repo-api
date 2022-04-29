@@ -31,23 +31,27 @@ public class ITemServiceImpl implements IItemService {
     @Override
     public List<String> calculate(Map<String, Float> items, Float amount) throws ItemException {
         descartar(items);
-
         Float res = sumar(items).floatValue();
-        res = res <= amount.floatValue() ? amount : res.floatValue() - amount.floatValue();
-        List<String> keys = new ArrayList<>();     
-        List<Entry<String, Float>> list = new ArrayList<>(items.entrySet());
-        list.sort(Entry.comparingByValue(Comparator.reverseOrder()));
-        Float sum = new Float(0);
-        for (Entry<String, Float> element : list) {
-            keys.add(element.getKey());
-            sum += element.getValue().floatValue();
-            if (sum >= res) {
-                break;
+        if (amount.floatValue() < res.floatValue()) {
+            res = res <= amount.floatValue() ? amount : res.floatValue() - amount.floatValue();
+            List<String> keys = new ArrayList<>();
+            List<Entry<String, Float>> list = new ArrayList<>(items.entrySet());
+            list.sort(Entry.comparingByValue(Comparator.reverseOrder()));
+            Float sum = new Float(0);
+            for (Entry<String, Float> element : list) {
+                keys.add(element.getKey());
+                sum += element.getValue().floatValue();
+                if (sum >= res) {
+                    break;
+                }
             }
+
+            for (String key : keys) {
+                items.remove(key);
+            }
+
         }
-        for (String key : keys) {
-            items.remove(key);
-        } 
+
         return new ArrayList<String>(items.keySet());
     }
 
@@ -61,19 +65,17 @@ public class ITemServiceImpl implements IItemService {
     }
 
     @Override
-    public void descartar(Map<String, Float> items)throws ItemException {
-        Map<String,Integer> res = new HashMap<>();
+    public void descartar(Map<String, Float> items) throws ItemException {
+        Map<String, Integer> res = new HashMap<>();
 
         for (Map.Entry<String, Float> element : items.entrySet()) {
-            if(res.containsKey(element.getKey())){
-                throw new ItemException(1,"Solo se puede comprar una unidad por item");
-            }else{
+            if (res.containsKey(element.getKey())) {
+                throw new ItemException(1, "Solo se puede comprar una unidad por item");
+            } else {
                 res.put(element.getKey(), 1);
             }
         }
-        
+
     }
-
-
 
 }
